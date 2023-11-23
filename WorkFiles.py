@@ -13,7 +13,8 @@ def work_with_phonebook():
             '4. Удалить запись',
             '5. Найти абонента по номеру телефона',
             '6. Добавить абонента в справочник',
-            '7. Закончить работу', sep='\n')
+            '7. Скопировать абонента из другого файла',
+            '8. Закончить работу', sep='\n')
         print()
         option = int(input())
         return option
@@ -45,6 +46,7 @@ def work_with_phonebook():
         for i in range(len(phone_book)):
             if phone_book[i].get('Фамилия') == l_name:
                 phone_book[i]['Телефон'] = n_number
+                write_txt('guide.txt', phoneBook)
                 return "изменен"
         return "с такой фамилией не найден"
 
@@ -52,6 +54,7 @@ def work_with_phonebook():
         for i in range(len(phone_book)):
             if phone_book[i].get('Фамилия') == l_name:
                 phone_book.pop(i)
+                write_txt('guide.txt', phoneBook)
                 return "произведено"
         return 'не произведено, фамилия не найдена'
 
@@ -64,12 +67,27 @@ def work_with_phonebook():
     def add_record(phone_book, l_name, a_name, a_number, a_description):
         new_dictionary = {'Фамилия':l_name, 'Имя':a_name, 'Телефон':a_number, 'Описание':a_description}
         phone_book.append(new_dictionary)
+        write_txt('guide.txt', phoneBook)
         return "Абонент в справочник добавлен"
+
+    def аdd_subscriber_from_file(phone_book, аnother_file, l_number):
+        if os.path.exists(аnother_file):
+            with open(аnother_file, 'r', encoding='utf-8') as file:
+                line = file.readlines()
+                if l_number <= len(line):
+                    line = line[l_number - 1]
+                    fields = ['Фамилия', 'Имя', 'Телефон', 'Описание']
+                    record = dict(zip(fields, line.split(',')))
+                    phone_book.append(record)
+                    write_txt('guide.txt', phoneBook)
+                    return 'Абонент скопирован'
+                else: return "Неверный номер строки"
+        else: return 'Файл не найден'
 
     phoneBook = read_txt('guide.txt')
     var = actions()
 
-    while (var != 7):
+    while (var != 8):
         if var == 1:
             clear_console()
             with open('guide.txt', 'r', encoding='utf-8') as data:
@@ -92,12 +110,10 @@ def work_with_phonebook():
             last_name = input('Введите фамилию: ')
             new_number = input('Введите новый номер телефона: ')
             print("Телефон абонента", change_number(phoneBook, last_name, new_number))
-            write_txt('guide.txt', phoneBook)
 
         if var == 4:
             last_name = input('Введите фамилию, удаляемого абонента: ')
             print("Удаление записи абонента ",del_record(phoneBook, last_name))
-            write_txt('guide.txt', phoneBook)
 
         if var == 5:
             tel = input('Введите телефон: ')
@@ -109,7 +125,11 @@ def work_with_phonebook():
             number = input('Введите номер телефона: ')
             description = input('Введите описание: ')
             print(add_record(phoneBook, last_name, name, number, description))
-            write_txt('guide.txt', phoneBook)
+
+        if var == 7:
+            аnotherFile = input('Ведите имя другого файла: ')
+            line_number = int(input('Введите номер строки, копируемого абонента: '))
+            print(аdd_subscriber_from_file(phoneBook, аnotherFile, line_number))
 
         var = actions()
 work_with_phonebook()
